@@ -26,6 +26,8 @@ opts = Trollop.options do
   opt(:outdir, 'Output directory', type: :string)
   opt(:uclust, 'Uclust binary', type: :string,
       default: '/usr/local/bin/uclust')
+  opt(:min_len, 'Min length contig to consider', type: :int,
+      default: 200)
 end
 
 
@@ -51,8 +53,8 @@ end
 combined_fname = File.join(opts[:outdir], "#{opts[:prefix]}.fa")
 File.open(combined_fname, 'w') do |f|
   ARGV.each do |fname|
-    File.open(fname, 'r').each_line do |line|
-      f.puts line
+    FastaFile.open(fname, 'r').each_record do |header, sequence|
+      f.puts ">#{header}\n#{sequence}" if sequence.length > opts[:min_len]
     end
   end
 end
@@ -62,7 +64,7 @@ uc_fname = File.join(opts[:outdir], "#{opts[:prefix]}.uc")
 cmd =
   "#{opts[:uclust]} --usersort " +
   "--maxlen 1000000 " +
-  "--minlien 200 " +
+  "--minlen 200 " +
   "--nucleo " +
   "--id 1 " +
   "--rev " +
