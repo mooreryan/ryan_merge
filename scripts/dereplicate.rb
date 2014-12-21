@@ -10,6 +10,8 @@ rescue LoadError => e
   abort("ERROR: #{e.message}\nTry running: gem install #{bad_file}")
 end
 
+require_relative '../lib/functions'
+
 Signal.trap("PIPE", "EXIT")
 
 opts = Trollop.options do
@@ -44,21 +46,6 @@ elsif !File.exist? opts[:outdir]
   end
 end
 
-
-def run_it(cmd)
-  begin
-    $stderr.puts "\nRUNNING: #{cmd}"
-    cmd_outerr = Shell.execute!(cmd)
-    $stdout.puts cmd_outerr.stdout unless cmd_outerr.stdout.empty?
-    $stderr.puts cmd_outerr.stderr unless cmd_outerr.stderr.empty?
-    
-    return cmd_outerr
-  rescue RuntimeError => e
-    # print stderr if bad exit status
-    abort(e.message)
-  end
-end
-
 # combine the files into one uber fasta
 # ARGV will contain fastq files to process
 combined_fname = File.join(opts[:outdir], "#{opts[:prefix]}.fa")
@@ -75,6 +62,7 @@ uc_fname = File.join(opts[:outdir], "#{opts[:prefix]}.uc")
 cmd =
   "#{opts[:uclust]} --usersort " +
   "--maxlen 1000000 " +
+  "--minlien 200 " +
   "--nucleo " +
   "--id 1 " +
   "--rev " +
@@ -93,3 +81,5 @@ run_it(cmd)
 
 # clean up
 FileUtils.rm([uc_fname, combined_fname])
+
+puts

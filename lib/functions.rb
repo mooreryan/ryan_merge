@@ -11,3 +11,10 @@ def run_it(cmd)
     abort(e.message)
   end
 end
+
+def parse_fname(fname)
+  { dir: File.dirname(fname), 
+    base: File.basename(fname, File.extname(fname)), 
+    ext: File.extname(fname) }
+end
+
