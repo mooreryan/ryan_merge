@@ -48,6 +48,8 @@ elsif !File.exist? opts[:outdir]
   end
 end
 
+abort("Don't forget to specify files") if ARGV.empty?
+
 # combine the files into one uber fasta
 # ARGV will contain fastq files to process
 combined_fname = File.join(opts[:outdir], "#{opts[:prefix]}.fa")
