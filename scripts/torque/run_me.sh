@@ -1,42 +1,16 @@
 #!/bin/bash
 
 #PBS -N ryan_merge_fast
-#PBS -l walltime=200:00:00,nodes=biohen36:ppn=24,cput=4800:00:00
-#PBS -d /home/moorer/runt
-#PBS -e /home/moorer/runt/oe
-#PBS -o /home/moorer/runt/oe
+#PBS -l walltime=200:00:00,nodes=1:ppn=24,cput=4800:00:00
+#PBS -d /home/abod/runt
+#PBS -e /home/abod/runt/oe
+#PBS -o /home/abod/runt/oe
 
 hostname
 date
 
-scripts=/home/moorer/git_repos/merge_assemblies/scripts
-prefix=Sample_100
-outdir=/home/aoh/cow/viral_metagenomes/Sample_100/qc/digi_dir/assembly/ryan_merged_fast
-combined=$outdir/$prefix.unique.fa
-short=$outdir/$prefix.unique.short.fa
-long=$outdir/$prefix.unique.long.fa
+time bash /home/moorer/git_repos/merge_assemblies/scripts/torque/ryan_merge.sh Sample_144-B2
 
-time ruby $scripts/dereplicate_fast_2.rb -p $prefix -o $outdir /home/aoh/cow/viral_metagenomes/Sample_100/qc/digi_dir/assembly/RayOutput.*/Contigs.fasta /home/moorer/sandbox/Sample_100.celera.ctg.fasta \
-    && \
-    time ruby $scripts/bin_seqs.rb $short $long $combined \
-    && \
-    time ruby $scripts/celera.rb -f $short --make-fq -p Sample_100.short -o $outdir/celera_assembly \
-    && \
-    time ruby $scripts/minimus2.rb --celera $outdir/celera_assembly/assembly_celera/9-terminator/Sample_100.short.ctg.fasta --long $long -o $outdir \
-    && \
-    time ruby $scripts/make_minimus_headers.rb $outdir/two_assemblies.fa > $outdir/tmp && mv $outdir/tmp $outdir/two_assemblies.fa \
-    && \
-    time /usr/local/AMOS/bin/toAmos -s $outdir/two_assemblies.fa -o $outdir/two_assemblies.fa.afg \
-    && \
-    time /home/moorer/bin/minimus2 $outdir/two_assemblies.fa -D REFCOUNT=21108 -D OVERLAP=80 -D CONSERR=0.06 -D MINID=98 \
-    && \
-    time cat $outdir/two_assemblies.fa.fasta $outdir/two_assemblies.fa.singletons.seq > $outdir/two_assemblies.ryan_merged.fa \
-    && \
-    ruby $scripts/dereplicate_sequences.rb $outdir/two_assemblies.ryan_merged.fa > $outdir/tmp && mv $outdir/tmp $outdir/two_assemblies.ryan_merged.unique.fa
-
-
-# the minimus2 script breaks if headers are not unique
-
-echo "all done!"
+echo "this script is all done!"
 date
 
